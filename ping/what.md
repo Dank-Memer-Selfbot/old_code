@@ -1,0 +1,6 @@
+Syn.py uses syn packets to check if a port is open.
+
+When you ping a server, you create a TCP connection, send a packet, depending on the server's response, you can determine if the port is open or not. Then, you terminate the connection. This is quite noisy and such requests are often logged, instead, syn just sends a packet, waits for the response and doesn't do anything further.
+
+> A faster and a little bit more stealthy port scan is a SYN scan. This is probably the most common technique for port scanners in general. Often also referred to as half-open scanning, because you don’t do a full TCP connection. You send a [SYN] packet and then wait for the response. A [SYN ACK] indicates that the port is open, while a [RST] indicates that it’s closed. In contrast to the connect scan, in this method of scanning we do not complete the three-way handshake by sending a [ACK] ourselves, but terminate the connection.
+> \- https://inc0x0.com/tcp-ip-packets-introduction/tcp-ip-packets-4-creating-a-syn-port-scanner/
