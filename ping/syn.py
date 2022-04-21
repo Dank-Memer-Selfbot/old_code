@@ -11,13 +11,25 @@ To understand how a normal TCP connection works and how this is different.
 """
 
 import socket
+from awaits.awaitable import awaitable
 
 
 class Syn:
     def __init__(self):
         ...
 
-    def _ping(self, host: str, port: int, timeout: int = 3):
+    @awaitable
+    def ping(self, host: str, port: int, timeout: int = 3) -> bool:
+        """Pings an IP Address using sync packets, sourced from https://github.com/pdrb/synping/blob/master/synping/synping.py
+
+        Args:
+            host (str): The IP Address to ping.
+            port (int): The port to ping on.
+            timeout (int, optional): How long the socket should wait before timing out. Defaults to 3 seconds.
+
+        Returns:
+            bool: Whether or not the port is open, as well as if the host is alive.
+        """
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(timeout)
         try:
@@ -25,11 +37,8 @@ class Syn:
             s.close()
             return True
         except ConnectionRefusedError:
-            return True
+            return False
         except TimeoutError:
             return False
         except Exception as exc:
             return False
-
-    async def ping(self, host: str, port: int):
-        ...
