@@ -55,11 +55,17 @@ class Ping:
             favicon: str
         """
         try:
-            data = await JavaServer(host=ip_address, port=port).async_status()
+            data = await JavaServer(host=ip_address, port=port)
+            console.log(data)
+            data = await data.async_status()
+            console.log(data)
             data = data.raw
+            console.log(data)
         except Exception as exc:
             data = exc
+            console.log(data)
         return data
+
 
 # --- Syn --- #
 
@@ -102,37 +108,44 @@ class Syn:
             s.close()
             return True
         except ConnectionRefusedError:
+            console.log("conn")
             return False
         except TimeoutError:
+            console.log("timeout")
             return False
         except Exception as exc:
+            console.log(exc)
             return False
+
 
 # --- Scanning --- #
 
 syn = Syn()
 ping = Ping()
 
+
 async def scan(ip_range: ipaddress.IPv4Network, ports: List[int]) -> AsyncGenerator:
     """Meant for scanning an IP Block for minecraft servers."""
 
     for ip_address in ip_range:
+        ip_address = str(ip_address)
         for port in ports:
             ip = f"{str(ip_address)}:{port}"
-            if not await syn.ping(ip, port):
-                yield False, ip, 'syn', None
+            console.log(locals())
+            if not await syn.ping(ip_address, port):
+                yield False, ip, "syn", None
                 continue
-            data = await ping.ping(ip, port)
+            data = await ping.ping(ip_address, port)
             if isinstance(data, Exception):
-                yield False, ip, 'err', data
+                yield False, ip, "err", data
                 continue
-            yield True, data.raw, 'suc', None
+            yield True, data.raw, "suc", None
 
 
 async def human():
     ports = console.input("List of ports?\nExample: 25565, 25566\n> ").split(", ")
     ip_range = console.input("IP Range?\nExample: 0.0.0.0/0\n> ")
-    s = scan(ipaddress.ip_network(ip_range), ports=ports)
+    s = scan(ipaddress.ip_network(ip_range), ports=[int(port) for port in ports])
     async for data in s:
         status = data[0]
         info = data[1]
@@ -148,4 +161,5 @@ async def human():
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(human())
