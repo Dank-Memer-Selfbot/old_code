@@ -1,10 +1,5 @@
 import ipaddress
-from rich.console import Console
 from typing import Dict, List, AsyncGenerator
-
-# --- Constants --- #
-
-console = Console()
 
 # --- Ping --- #
 
@@ -55,15 +50,11 @@ class Ping:
             favicon: str
         """
         try:
-            data = await JavaServer(host=ip_address, port=port)
-            console.log(data)
+            data = JavaServer(host=ip_address, port=port)
             data = await data.async_status()
-            console.log(data)
             data = data.raw
-            console.log(data)
         except Exception as exc:
             data = exc
-            console.log(data)
         return data
 
 
@@ -108,13 +99,10 @@ class Syn:
             s.close()
             return True
         except ConnectionRefusedError:
-            console.log("conn")
             return False
         except TimeoutError:
-            console.log("timeout")
             return False
         except Exception as exc:
-            console.log(exc)
             return False
 
 
@@ -131,7 +119,6 @@ async def scan(ip_range: ipaddress.IPv4Network, ports: List[int]) -> AsyncGenera
         ip_address = str(ip_address)
         for port in ports:
             ip = f"{str(ip_address)}:{port}"
-            console.log(locals())
             if not await syn.ping(ip_address, port):
                 yield False, ip, "syn", None
                 continue
@@ -140,26 +127,3 @@ async def scan(ip_range: ipaddress.IPv4Network, ports: List[int]) -> AsyncGenera
                 yield False, ip, "err", data
                 continue
             yield True, data.raw, "suc", None
-
-
-async def human():
-    ports = console.input("List of ports?\nExample: 25565, 25566\n> ").split(", ")
-    ip_range = console.input("IP Range?\nExample: 0.0.0.0/0\n> ")
-    s = scan(ipaddress.ip_network(ip_range), ports=[int(port) for port in ports])
-    async for data in s:
-        status = data[0]
-        info = data[1]
-        if not status:
-            console.log(data)
-            console.log("bad")
-            continue
-        if status:
-            console.log(data)
-            console.log("based")
-            continue
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    asyncio.run(human())
