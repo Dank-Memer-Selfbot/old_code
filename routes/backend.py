@@ -1,4 +1,3 @@
-import aiosqlite
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -21,7 +20,7 @@ class Ping(BaseModel):
 
 @limiter.limit("1/5minutes")
 @app.get("/ping", response_model=list[Ping])
-async def ping() -> dict:
+async def ping(request: Request) -> dict:
     return {"status":True}
 
 # -------------- #
