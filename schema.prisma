@@ -1,0 +1,22 @@
+model Server {
+  version         Version  @relation(fields: [versionProtocol], references: [protocol])
+  players         Player[]
+  description     String
+  favicon         String?
+  address         String   @id @unique
+  max_players     Int
+  online_players  Int
+  versionProtocol Int
+}
+
+model Player {
+  uuid     String   @id @unique
+  username String
+  servers  Server[]
+}
+
+model Version {
+  protocol Int      @id @unique
+  name     String
+  Server   Server[]
+}
