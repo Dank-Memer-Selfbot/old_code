@@ -1,6 +1,12 @@
+// database
 datasource db {
   provider = "sqlite"
   url      = "file:database.db"
+}
+
+// generator
+generator client {
+  provider = "prisma-client-py"
 }
 
 model Server {
