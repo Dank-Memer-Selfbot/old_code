@@ -1,0 +1,7 @@
+I'm thinking we can create a package of the [ping](/ping) directory so others can easily implement similar functionality in their programs, while also making requirements easier.
+
+The plan is to have a config file for a password to run the scan, and an optional password to paginate servers. Unsure if linking scanning to the running fastapi process is a good idea, because we need to return a response, possibly running it in a threaD?
+
+After the config file, need to work on a decent website, preferably server side generated with an optional api? Might be too much effort, still need to think over it a bit more. The website's template is probably going to be made using [nicepage](https://nicepage.com), with some stuff taken from writingSite (daisyui, pagination type beat).
+
+For the database, I'm going with prisma & sqlite, created the schema using [schema builder](https://prismabuilder.io), its quite sleek and intuitive, definitely going to use it for other projects. Still need to build a decent adapter for it. Infact, I've been thinking over it, to tackle the issue of asyncio.gather and syn both creating threadpools, and the fact that I can't create more than one database connection, I'm going to use a singleton (A class which can only be instantiated once, and if done again, returns the original class, utilising `__new__` to modify the instance before it's even been instantiated, `___call__` to modify the return type and metaclasses to make the process easier, I learned of them yesterday on an mcoding video, so knowledge isn't fully fleshed out yet).
