@@ -11,8 +11,12 @@ from rich.console import Console
 
 frontend = pathlib.Path(__file__).parent.parent.joinpath("frontend")
 templates = Jinja2Templates(directory=frontend.joinpath("templates"))
+
+
 async def not_found(request, exception):
     return templates.TemplateResponse("404.html", {"request": request})
+
+
 exception_handlers = {
     404: not_found,
 }

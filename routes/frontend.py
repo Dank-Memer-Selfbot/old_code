@@ -24,4 +24,5 @@ templates = Jinja2Templates(directory=frontend.joinpath("templates"))
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+
 # ----------------------------------------------------------------------------- #

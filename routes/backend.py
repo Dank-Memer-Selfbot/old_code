@@ -13,14 +13,18 @@ console = Console()
 
 # --- Classes --- #
 
+
 class Ping(BaseModel):
     status: bool = True
 
+
 # --- Routes --- #
+
 
 @limiter.limit("1/5minutes")
 @app.get("/ping", response_model=list[Ping])
 async def ping(request: Request) -> dict:
-    return {"status":True}
+    return {"status": True}
+
 
 # -------------- #
