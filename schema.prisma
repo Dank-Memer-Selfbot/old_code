@@ -6,29 +6,41 @@ datasource db {
 
 // generator
 generator client {
-  provider = "prisma-client-py"
+  provider  = "prisma-client-py"
   interface = "asyncio"
 }
 
 model Server {
-  version         Version  @relation(fields: [versionProtocol], references: [protocol])
-  players         Player[]
-  description     String
-  favicon         String?
-  address         String   @id @unique
-  max_players     String
-  online_players  String
-  versionProtocol Int
+  id          Int      @id @unique @default(autoincrement())
+  ip_address  String   @unique
+  description String
+  favicon     String
+  version     Version  @relation(fields: [versionId], references: [id])
+  players     Player[]
+  minmax      Maximum  @relation(fields: [maximumId], references: [id])
+  versionId   Int
+  maximumId   Int
 }
 
 model Player {
-  uuid     String   @id @unique
-  username String
-  servers  Server[]
+  id            Int     @id @unique @default(autoincrement())
+  uuid          String
+  username      String
+  authenticated Boolean
+  Server        Server? @relation(fields: [serverId], references: [id])
+  serverId      Int?
 }
 
 model Version {
-  protocol Int      @id @unique
+  id       Int      @id @unique @default(autoincrement())
   name     String
+  protocol Int
   Server   Server[]
+}
+
+model Maximum {
+  id     Int      @id @unique @default(autoincrement())
+  min    String
+  max    String
+  Server Server[]
 }
