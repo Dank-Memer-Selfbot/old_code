@@ -10,6 +10,8 @@ generator client {
   interface = "asyncio"
 }
 
+// schema
+
 model Server {
   id          Int      @id @unique @default(autoincrement())
   ip_address  String   @unique
@@ -17,18 +19,17 @@ model Server {
   favicon     String
   version     Version  @relation(fields: [versionId], references: [id])
   players     Player[]
-  minmax      Maximum  @relation(fields: [maximumId], references: [id])
+  maximum     Maximum  @relation(fields: [maximumId], references: [id])
   versionId   Int
   maximumId   Int
 }
 
 model Player {
-  id            Int     @id @unique @default(autoincrement())
+  id            Int      @id @unique @default(autoincrement())
   uuid          String
   username      String
   authenticated Boolean
-  Server        Server? @relation(fields: [serverId], references: [id])
-  serverId      Int?
+  servers       Server[]
 }
 
 model Version {
@@ -40,7 +41,7 @@ model Version {
 
 model Maximum {
   id     Int      @id @unique @default(autoincrement())
-  min    String
+  online String
   max    String
   Server Server[]
 }

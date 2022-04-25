@@ -1,5 +1,5 @@
 from prisma import Prisma
-from prisma.models import Server, Player, Version
+from prisma.models import Server, Player, Version, Maximum
 from typing import Any, List, Optional, Dict
 
 from rich.console import Console
@@ -37,7 +37,9 @@ class Database(metaclass=_Singleton):
         self.connected = False
         return self.client
 
-    async def add_server(self, ip_address: str, data: Dict[str, Any]) -> bool:
+    async def add_server(
+        self, ip_address: str, data: Dict[str, Any], authenticated: bool
+    ) -> bool:
         """Adds a server to the database:
 
         Parameters:
@@ -61,33 +63,46 @@ class Database(metaclass=_Singleton):
         except ValueError:
             protocol = 0
 
-        version = Version(protocol=protocol, name=data["version"]["name"])
         players = [
-            Player(uuid=player_data["id"], username=player_data["name"])
-            for player_data in data["players"]["sample"]
+            await Player.prisma().create(data=data)
+            for data in [
+                {
+                    "uuid": player_data["id"],
+                    "username": player_data["name"],
+                    "authenticated": True,
+                }
+                for player_data in data["players"]["sample"]
+            ]
         ]
+        console.log(players)
+        console.log(dir(players[0]))
 
         ip: str = ip_address
         description = f"{data['description']['text']!a}"
-        online = f"{data['players']['online']!a}"
-        maximum = f"{data['players']['max']!a}"
         favicon: str = data["favicon"]
 
-        server = Server(
-            address=ip,
-            version=version,
-            players=players,
-            description=description,
-            online_players=online,
-            max_players=maximum,
-            favicon=favicon,
-            versionProtocol=protocol,
-        )
-        data = server.dict()
-        console.log(data)
-        console.log(dir(server.prisma()))
+        version = {"name": data["version"]["name"], "protocol": protocol}
+        version = await Version.prisma().create(data=version)
+        console.log(dir(version))
+        version = version.id
 
-        # await Server.prisma().create(data=data)
+        online = f"{data['players']['online']!a}"
+        maximum = f"{data['players']['max']!a}"
+        minmax = {"online": online, "max": maximum}
+        minmax = await Maximum.prisma().create(data=minmax)
+        console.log(dir(minmax))
+        minmax = minmax.id
+
+        server = {
+            "ip_address": ip,
+            "description": description,
+            "favicon": favicon,
+            "versionId": version,
+            "maximumId": minmax,
+            "players": players,
+        }
+
+        await Server.prisma().create(data=server)
 
         await self.disconnect()
 
@@ -107,4 +122,4 @@ data = {
     "description": {"text": "Hello world"},
     "favicon": "data:image/png;base64,<data>",
 }
-asyncio.run(d.add_server("123", data))
+asyncio.run(d.add_server("123", data, True))
